@@ -2,7 +2,7 @@
 # Advanced encryption standard 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
-The Advanced encryption standard (AES) coded in c as a proof of concept.
+The Advanced encryption standard (AES) coded in c and c++ as a proof of concept.
 
 
 
@@ -12,7 +12,7 @@ The Advanced encryption standard (AES) coded in c as a proof of concept.
 Clone the project
 
 ```bash
-  git clone https://github.com/TJulesL/Advanced-encryption-standard.git
+  git clone https://github.com/TJouleL/Advanced-encryption-standard.git
 ```
 
 Go to the project directory
@@ -25,9 +25,14 @@ Go to the project directory
 
 
 
-Compile the main.c code. You can use any c compiler you like in this case we will use the gnu c compiler
+Compile the c or c++ code. You can use any c or c++ compiler you like in this case we will use the gnu c and c++ compiler
 ```bash
-  gcc main.c -o output
+  # Normal compiling
+  gcc aes.c -o output
+  # Optimized compiling
+  gcc aes.c -o output --optimize=3
+
+  # Same for c++ but with g++ and aes.cpp
 ```
 
 Execute the file
@@ -35,17 +40,6 @@ Execute the file
 ```bash
   ./output
 ```
-
-This should normally output the following
-```
-BLOCK 0 ------------------------------------
-3a 6c 7e 23
-d7 1e bf d9
-8e c0 e9 ec
-72 2b 2b 34
-```
-
-
 
 
 The code automatically uses a nist test vector, if you want to encrypt your own data with your own key, you can change the blocks and key variables. Remember however that you should input your data **column-major** inside of the blocks variable. If you dont do this you will get completely different results and it will not be decryptable to the original state. 
@@ -55,12 +49,32 @@ The code automatically uses a nist test vector, if you want to encrypt your own 
 
 
 ![](https://dotchris90.github.io/NumSharp/images/rowWise_ColumnWise.png)
-## Features
 
-- AES Cipher in 128/192/256 bits
-- ECB encryption
-- ECB decryption
 
+
+## FAQ
+
+
+### Why is there such a big difference between the code in the c and c++ files?
+
+I started this project to learn about how AES works and i was learning to write in c. Mostly i focused on memory management and pointers. You can see that in the code. The language was very new to me so i also made a few uncorrected mistakes or at least the act of not following all best principles. It was a while after i was done with the c project i began learning c++. In c++ i wanted to recreate the aes en/decryption algorithm but mainly focused on learning the language and compatibility with embedded devices. Another goal was to learn the STL (Standard Template Library). The stl approach turned out to be extremely inefficient without compiler optimizations so i changed it back. 
+
+Eventually i got to the state we are now in. I barely changed the c version of the code since that would mean i needed to fully refactor it. In both the c version and c++ version the performance is timed (per 1 Mb). The aes_no_timing file doesnt time and just executes the functions.
+
+
+
+
+
+#### Why dont you use aes-ni?
+
+This project was made public mostly to get a better understanding of how the advanced encryption standard works. It also has lots of comments in the code and explanations that guide you step by step to how you can code it yourself. most aes code is unnecessarily hard to read, most of the time because of optimalisations, that is why this project should come in handy for programmers or others who want to get to know the basics of AES in c or c++. If i used aes-ni for this project that would defeat the readability and wouldnt help people understand the code. It also would be way too easy.
+
+
+#### Is this code safe to use for encrypting sensitive data?
+
+Short answer : No, not really.
+
+Long answer : The aes cipher in itself is safe to use for encryption however since this code uses the ECB mode it is not safe for encrypting data because it will reveal patterns in some data. There are other [modes of operation](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation) however they are not added yet to the code.
 
 
 ## Sources
@@ -69,23 +83,11 @@ The code automatically uses a nist test vector, if you want to encrypt your own 
  - [AES modes of operation on wikipedia](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation)
  - [NIST test vectors](https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Block-Ciphers)
 
-- [S-boxes and code examples](https://github.com/kokke/tiny-AES-c/blob/master/aes.c)
+ - [S-boxes and code examples](https://github.com/kokke/tiny-AES-c/blob/master/aes.c)
 ## Authors
 
-- [@TJulesL](https://www.github.com/TJulesL)
+- [@TJulesL](https://www.github.com/TJouleL)
 
-
-## FAQ
-
-#### What is this project for?
-
-This is mostly a project to get a better understanding of how the advanced encryption standard works. It also has lots of comments in the code and explanations that guide you step by step to how you can code it yourself. Most aes code is unnecessarily hard to read, most of the time because of optimalisations, that is why this project could come in handy for programmers or others who want to see the basics of AES.
-
-#### Is this code safe to use for encrypting sensitive data?
-
-Short answer : No, not at all
-
-Long answer : The aes cipher in itself is safe to use for encryption however since this code uses the ECB mode it is not safe for encrypting data because it will reveal patterns in some data. There are other [modes of operation](https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation) however they are not added yet to the code.
 
 
 ## License
