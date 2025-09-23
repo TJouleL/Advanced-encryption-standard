@@ -1,15 +1,10 @@
-// s-box and inverse s-box
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <time.h> // for benchmark
 
 
 static int Nk;  // AES key length in 32-bit words (for AES-128).
 static int Nr; // Number of rounds in AES (for AES-128).
 
-
+typedef unsigned char uint8_t;
 
 
 
@@ -30,11 +25,12 @@ static const uint8_t Sbox[256] = {
   0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
   0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
   0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
-  0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 };
+  0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 
+};
 
 
 
-// The sbox in reverse for decrypting
+// The sbox' inverse for decrypting
 static const uint8_t inverse_sbox[256] = {
   0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
   0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
@@ -51,12 +47,14 @@ static const uint8_t inverse_sbox[256] = {
   0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
   0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
   0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
-  0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d };
+  0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d 
+};
 
 
 // an array with the rcon (rotational constants)
 static const uint8_t Rotate_constants[11] = {
-  0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
+  0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 
+};
 
 
 // MixColumns transformation matrix for mixcolumns operation
@@ -107,14 +105,6 @@ void initialize_gmul_tables() {
     for (int i = 0; i < 256; i++) {
         gmul2[i] = gmul(i, 2);
         gmul3[i] = gmul(i, 3);
-    }
-}
-
-
-
-
-void initialize_inverse_gmul_tables() {
-    for (int i = 0; i < 256; i++) {
         gmul9[i] = gmul(i, 9);
         gmul11[i] = gmul(i, 11);
         gmul13[i] = gmul(i, 13);
@@ -188,24 +178,6 @@ void AddRoundKey(uint8_t block[4][4], const uint8_t* round_key, int round) {
 
 
 
-// function to do left shift a word 
-void ShiftWord(uint8_t* word) {
-    uint8_t temp = word[0];
-    word[0] = word[1];
-    word[1] = word[2];
-    word[2] = word[3];
-    word[3] = temp;
-}
-
-// substitute word 
-void SubWord(uint8_t* word) {
-    for (int i = 0; i < 4; i++) {
-        word[i] = Sbox[word[i]];
-    }
-}
-
-
-
 // function to shift rows in block
 void ShiftRows(uint8_t block[4][4]) {
     uint8_t temp;
@@ -231,15 +203,6 @@ void ShiftRows(uint8_t block[4][4]) {
     }
     block[3][0] = temp;
 }
-
-void RotWord(uint8_t* word) {
-    uint8_t temp = word[0];
-    word[0] = word[1];
-    word[1] = word[2];
-    word[2] = word[3];
-    word[3] = temp;
-}
-
 
 
 
@@ -333,7 +296,7 @@ void AES_Encrypt(uint8_t block[4][4], const uint8_t* expanded_key) {
     AddRoundKey(block, expanded_key, round);
 }
 
-uint8_t prepare_blocks(){} // from hex / byte array to the block or multiple blocks
+//uint8_t prepare_blocks(){} // from hex / byte array to the block or multiple blocks
 
 
 void AES_Decrypt(uint8_t block[4][4], const uint8_t* expanded_key) {
@@ -364,8 +327,24 @@ void ECB_mode(uint8_t block[4][4], uint8_t key[], int e_d) {
     int expanded_key_size =  4 * (Nr + 1) * 4; // words_in_block * (rounds + 1) * 4
     uint8_t expandedKey[expanded_key_size];
     key_expand(key, expandedKey);
+
+      for (int i = 0; i < expanded_key_size; i++) {
+            printf("%02x ", expandedKey[i]);
+            if (((i+1) % 16) == 0) {
+                printf("\n");
+            } 
+        }
+
+
     if (e_d == 1){
-        AES_Encrypt(block, expandedKey); // no plaintext because the plaintext is already in the block
+        clock_t start = clock();
+        for(int black = 0; black < 10*65536; black++) {
+            AES_Encrypt(block, expandedKey); // no plaintext because the plaintext is already in the block
+        }
+        clock_t end = clock();
+        float elapsed = (end - start) / CLOCKS_PER_SEC;
+        printf("%f", elapsed);
+
     } else {
         AES_Decrypt(block, expandedKey);
     }
@@ -388,7 +367,7 @@ int main() {
     int amount = 1; /* we only use one block in this example, when using this with the blocks var the compiler will say that you 
     cannot initialize a variable-sized object except with an empty initializer. This var will only work when the main function is called with the amount as argument
     since this is not the case right now and this code is a proof of concept we will not use it for the blocks var size*/
-    uint8_t key[32] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+    uint8_t key[16] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};//,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
     
     
     // IMPORTANT : the block should be rotated Column wise. So if you want to set the first to bytes of the block (e.g ffaa)
@@ -426,7 +405,6 @@ int main() {
 
 
     initialize_gmul_tables();
-    initialize_inverse_gmul_tables();
 
     if (aes_bits == 128) {
         Nk = 4;
@@ -452,12 +430,7 @@ int main() {
         PrintBlock(blocks[blck]);
     }
     
-    
-
-
     return 0;
-
-
 }
 
 
@@ -466,7 +439,4 @@ int main() {
 // https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Block-Ciphers
 //KEY = 00000000000000000000000000000000
 //PLAINTEXT = 80000000000000000000000000000000
-//CIPHERTEXT = 3ad78e726c1ec02b7ebfe92b23d9ec34
-
-
-
+//CIPHERTEXT = 3ad78e726c1ec02b7ebfe92b23d9ec34 voor 128-bits en ddc6bf790c15760d8d9aeb6f9a75fd4e voor 256-bits
