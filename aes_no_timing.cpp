@@ -33,7 +33,11 @@ Aes-256 = 14 rounds
 */
 static uint8_t Nr; 
 
-static uint8_t state[4][4]; // Define the state / block
+static uint8_t state[4][4] = {0x00, 0x00, 0x00, 0x00},
+                             {0x00, 0x00, 0x00, 0x00},
+                             {0x00, 0x00, 0x00, 0x00},
+                             {0x00, 0x00, 0x00, 0x00}; // Define the state / block
+
 static uint8_t round_keys[240]; // round key has max 240 bytes (in case of aes-256 15 rounds * 16 bytes)
 
 // define the substitution box we later use as a lookup table
