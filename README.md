@@ -86,7 +86,7 @@ Long answer : The aes cipher in itself is safe to use for encryption however sin
  - [S-boxes and code examples](https://github.com/kokke/tiny-AES-c/blob/master/aes.c)
 ## Authors
 
-- [@TJulesL](https://www.github.com/TJouleL)
+- [@TJouleL](https://www.github.com/TJouleL)
 
 
 
